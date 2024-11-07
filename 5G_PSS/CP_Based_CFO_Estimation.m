@@ -1,13 +1,13 @@
 
 N_IFFT = 256;
 N_CP = 18;
-SNR_dB = -10;
+SNR_dB = 0;
 
 %% PSS
 pss = PSS(0);
 
 %% Tx Signal
-tx_pss = sqrt(N_IFFT) * ifft(pss,N_IFFT);
+tx_pss = sqrt(N_IFFT) * ifft(ifftshift(pss),N_IFFT);
 Eavg = sum(abs(tx_pss).^2)/N_IFFT;
 
 %% CFO

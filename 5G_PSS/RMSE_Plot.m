@@ -6,11 +6,13 @@ for i = 1:16
     fprintf("%d\n",i);
 end
 
-plot(k,rmse_cross,"-o");
+plot(k,rmse_cross,"-o","LineWidth",2);
 hold on;
-plot(k,rmse_auto,"--o");
+plot(k,rmse_auto,"--o","LineWidth",2);
 xlabel("SNR(dB)");
+title("RMSE of Residual Frequency Offset" )
 ylabel("Normalized Residual Frequency Offset");
-legend({"Conventional","Proposed"});
+legend({"Cross-Correlation","Auto-Correlation"});
 xlim([k(1) k(end)]);
+fontsize(12,"points");
 grid on;

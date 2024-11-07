@@ -7,14 +7,14 @@ SNR_dB = -9:3:15;
 pss_0 = PSS(0);
 
 %% Time Domain
-tx_pss_0 = sqrt(N_IFFT) .* ifft(pss_0,N_IFFT);
+tx_pss_0 = sqrt(N_IFFT) .* ifft(ifftshift(pss_0),N_IFFT);
 
-%% Average Symbol Energy
-Pavg = sum(abs(tx_pss_0).^2)/length(tx_pss_0);
+%% Energy Per Symbol(Bit)
+Eavg = sum(abs(tx_pss_0).^2)/length(tx_pss_0);
 
 %% Add AWGN
 for i = 1:length(SNR_dB)
-    awgn(i,:) = AWGN_Complex(SNR_dB(i),Pavg,N_IFFT);
+    awgn(i,:) = AWGN_Complex(SNR_dB(i),Eavg,N_IFFT);
     rx_pss_0(i,:) = tx_pss_0 + awgn(i,:);
 end
 

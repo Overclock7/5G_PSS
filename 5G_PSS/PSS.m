@@ -18,9 +18,7 @@ end
 % BPSK Modulation
 bpsk_ml_sequence = (-1) .^ ml_sequence;
 
-% Make PSS Symbol
-pss = [zeros(1,56) circshift(bpsk_ml_sequence,-43*Nid2) zeros(1,57)];
-
-
+% Make PSS Symbol ( 8 | 240RE | 8 )
+pss = [zeros(1,8) zeros(1,56) circshift(bpsk_ml_sequence,-43*Nid2) zeros(1,57) zeros(1,8)];
 
 

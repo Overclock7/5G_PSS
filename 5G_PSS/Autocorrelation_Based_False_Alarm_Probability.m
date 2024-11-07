@@ -3,7 +3,7 @@ function auto_corr_based_false_alarm_probability = Autocorrelation_Based_False_A
 
 %% Parameter
 % SNR_dB = 0;
-N_ITER = 100000;
+N_ITER = 1e4;
 N_THRE = 127;
 N_IFFT = 256;
 
@@ -15,16 +15,16 @@ auto_corr_based_false_alarm_probability = zeros(1,N_THRE);
 for i = 1:N_ITER
 
     % Create Random Signal Block (Same Power Signal as PSS)
-    random_signal = complex(1/sqrt(2)*(-1).^randi([0 1],1,N_THRE),1/sqrt(2)*(-1).^randi([0 1],1,N_THRE));
+    random_signal = [zeros(1,64) complex(1/sqrt(2)*(-1).^randi([0 1],1,N_THRE),1/sqrt(2)*(-1).^randi([0 1],1,N_THRE)) zeros(1,65)];
     
     % IFFT
-    tx_random_signal = sqrt(N_IFFT) .* ifft(random_signal,N_IFFT);
+    tx_random_signal = sqrt(N_IFFT) .* ifft(ifftshift(random_signal),N_IFFT);
 
-    % Power per Subcarrier
-    Pavg = sum(abs(tx_random_signal).^2)/N_IFFT;
+    % Energy Per Symbol(Bit)
+    Eavg = sum(abs(tx_random_signal).^2)/N_IFFT;
 
     % AWGN
-    awgn_complex = AWGN_Complex(SNR_dB,Pavg,N_IFFT);
+    awgn_complex = AWGN_Complex(SNR_dB,Eavg,N_IFFT);
    
     % CFO
     epsilon = 2/3 * rand();

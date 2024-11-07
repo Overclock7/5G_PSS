@@ -2,7 +2,7 @@
 function rmse = Autocorrelation_Based_CFO_Estimation_RMSE(SNR_dB)
 
 % SNR_dB = -3;
-N_ITER = 1e5;
+N_ITER = 1e4;
 N_IFFT = 256;
 N_CP = 18;
 Max_Freq_Offset = 1.33;
@@ -10,7 +10,7 @@ Max_Epsilon_Integer = round(Max_Freq_Offset) + 21; % Margin for AWGN
 
 %% PSS Freq Domain Reference
 pss_reference = PSS(0);
-pss_reference = pss_reference(57:183);
+pss_reference = pss_reference(65:191);
 
 %% Epsilon List
 epsilon = zeros(1,N_ITER);
@@ -26,15 +26,15 @@ for i = 1:N_ITER
     pss = PSS(Nid2);
 
     %% Tx Signal
-    tx_pss = sqrt(N_IFFT) * ifft(pss,N_IFFT);
-    P_avg = sum(abs(tx_pss).^2) / N_IFFT;
+    tx_pss = sqrt(N_IFFT) * ifft(ifftshift(pss),N_IFFT);
+    E_avg = sum(abs(tx_pss).^2) / N_IFFT;
 
     %% CFO
     epsilon(i) = Max_Freq_Offset * rand() * (-1)^randi([0,1],1,1);
     cfo = CFO(epsilon(i),N_IFFT,N_IFFT+N_CP);
 
     %% AWGN
-    awgn_complex = AWGN_Complex(SNR_dB,P_avg,N_IFFT+N_CP);
+    awgn_complex = AWGN_Complex(SNR_dB,E_avg,N_IFFT+N_CP);
 
     %% Rx Signal ( Perfect Symbol Timing )
     rx_pss = [tx_pss(N_IFFT-(N_CP-1):N_IFFT) tx_pss].* cfo + awgn_complex;
@@ -50,14 +50,14 @@ for i = 1:N_ITER
     part_comp_rx_pss = rx_pss(N_CP+1:N_CP+N_IFFT) .* CFO(-e_f,N_IFFT,N_IFFT);
 
     %% IFFT
-    ifft_rx_pss = 1/sqrt(N_IFFT) * fft(part_comp_rx_pss,N_IFFT);
+    ifft_rx_pss = 1/sqrt(N_IFFT) * fftshift(fft(part_comp_rx_pss,N_IFFT));
 
     %% Find Epsilon_i & Sector ID
     m = -86-Max_Epsilon_Integer : 0+Max_Epsilon_Integer;
     corr_result = zeros(1,length(m));
 
     for k = 1:length(m)
-        corr_result(k) = abs(sum(ifft_rx_pss(57:183).*circshift(pss_reference,m(k))));
+        corr_result(k) = abs(sum(ifft_rx_pss(65:191).*circshift(pss_reference,m(k))));
     end
     [max_result, max_index] = max(corr_result);
 

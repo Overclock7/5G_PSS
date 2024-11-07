@@ -4,7 +4,7 @@ N_IFFT = 256;
 pss_0 = PSS(0);
 
 %% Time Domain
-tx_pss = sqrt(N_IFFT) .* ifft(pss_0,N_IFFT);
+tx_pss = sqrt(N_IFFT) * ifft(ifftshift(pss_0),N_IFFT);
 
 %% CFO
 cfo_0 = CFO(0,N_IFFT,N_IFFT);
@@ -17,8 +17,8 @@ rx_pss_1 = tx_pss .* cfo_1;
 rx_pss_2 = tx_pss .* cfo_2;
 
 %% Freq Domain
-fft_rx_pss_1 = fft(1/sqrt(N_IFFT) .* rx_pss_1,N_IFFT);
-part_fft_rx_pss_1 = fft_rx_pss_1(57:183);
+fft_rx_pss_1 = 1/sqrt(N_IFFT) * fftshift(fft(rx_pss_1,N_IFFT));
+part_fft_rx_pss_1 = fft_rx_pss_1(65:191);
 
 %% Correlation
 [result0,index0] = xcorr(rx_pss_0,tx_pss);
@@ -35,21 +35,21 @@ stem(index0,abs(result0));
 title("CFO = 0");
 xlabel("\tau");
 ylabel("R[\tau]");
-ylim([0 140]);
+
 
 subplot(132);
 stem(index1,abs(result1));
 title("CFO = 0.25");
 xlabel("\tau");
 ylabel("R[\tau]");
-ylim([0 140]);
+
 
 subplot(133);
 stem(index2,abs(result2));
 title("CFO = 0.5");
 xlabel("\tau");
 ylabel("R[\tau]");
-ylim([0 140]);
+
 
 
 f2 = figure();

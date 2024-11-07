@@ -6,7 +6,7 @@ epsilon = -2.5:0.05:2.5;
 pss_0 = PSS(0);
 
 %% Time Domain
-tx_pss = sqrt(N_IFFT) .* ifft(pss_0,N_IFFT);
+tx_pss = sqrt(N_IFFT) .* ifft(ifftshift(pss_0),N_IFFT);
 
 %% CFO
 for i = 1:length(epsilon)

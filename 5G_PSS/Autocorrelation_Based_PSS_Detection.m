@@ -8,12 +8,12 @@ SNR_dB = 0;
 pss_0 = PSS(0);
 
 %% Tx Signal
-tx_pss_0 = sqrt(N_IFFT) * ifft(pss_0,N_IFFT);
+tx_pss_0 = sqrt(N_IFFT) * ifft(ifftshift(pss_0),N_IFFT);
 Eavg = sum(abs(tx_pss_0).^2) / N_IFFT;
 
 %% Random Data
-random_signal = [zeros(1,56), complex(1/sqrt(2)*(-1).^randi([0 1],1,N_THRE),1/sqrt(2)*(-1).^randi([0 1],1,N_THRE)), zeros(1,57)];
-% random_signal = [zeros(1,56) (-1).^randi([0 1],1,N_IFFT) zeros(1,57)];
+random_signal = [zeros(1,64), complex(1/sqrt(2)*(-1).^randi([0 1],1,N_THRE),1/sqrt(2)*(-1).^randi([0 1],1,N_THRE)), zeros(1,65)];
+% random_signal = [zeros(1,64) (-1).^randi([0 1],1,N_IFFT) zeros(1,65)];
 % random_signal = zeros(1,240);
 tx_random_signal = sqrt(N_IFFT) .* ifft(random_signal,N_IFFT);
 

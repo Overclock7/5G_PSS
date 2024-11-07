@@ -2,11 +2,11 @@
 function rmse = Crosscorrelation_Based_CFO_Estimation_RMSE(SNR_dB)
 
 % SNR_dB = -3;
-N_ITER = 1e5;
+N_ITER = 1e4;
 N_IFFT = 256;
 N_CP = 18;
 Max_Freq_Offset = 1.33;
-Max_Epsilon_Integer = round(Max_Freq_Offset) + 20; % Margin for AWGN
+Max_Epsilon_Integer = round(Max_Freq_Offset) + 21; % Margin for AWGN
 
 %% Epsilon List
 epsilon = zeros(1,N_ITER);
@@ -19,15 +19,15 @@ for i = 1:N_ITER
     pss = PSS(Nid2);
 
     %% Tx Signal
-    tx_pss = sqrt(N_IFFT) * ifft(pss,N_IFFT);
-    P_avg = sum(abs(tx_pss).^2) / N_IFFT;
+    tx_pss = sqrt(N_IFFT) * ifft(ifftshift(pss),N_IFFT);
+    E_avg = sum(abs(tx_pss).^2) / N_IFFT;
 
     %% CFO
     epsilon(i) = Max_Freq_Offset * rand() * (-1)^randi([0,1],1,1);
     cfo = CFO(epsilon(i),N_IFFT,N_IFFT+N_CP);
 
     %% AWGN
-    awgn_complex = AWGN_Complex(SNR_dB,P_avg,N_IFFT+N_CP);
+    awgn_complex = AWGN_Complex(SNR_dB,E_avg,N_IFFT+N_CP);
 
     %% Rx Signal ( Perfect Symbol Timing )
     rx_pss = [tx_pss(N_IFFT-(N_CP-1):N_IFFT) tx_pss].* cfo + awgn_complex;

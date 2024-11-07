@@ -3,7 +3,7 @@ function cross_corr_based_missing_probability = Crosscorrelation_Based_Missing_P
 
 %% Parameter
 % SNR_dB = -3;
-N_ITER = 100000;
+N_ITER = 1e4;
 N_THRE = 127;
 N_IFFT = 256;
 
@@ -15,10 +15,10 @@ cross_corr_based_missing_probability = zeros(1,N_THRE);
 pss = PSS(0);
 
 %% PSS Reference Signal
-tx_pss = sqrt(N_IFFT) .* ifft(pss,N_IFFT);
+tx_pss = sqrt(N_IFFT) .* ifft(ifftshift(pss),N_IFFT);
 
-%% Power Per Subcarrier
-Pavg = sum(abs(tx_pss).^2)/N_IFFT;
+%% Energy Per Symbol(Bit)
+Eavg = sum(abs(tx_pss).^2)/N_IFFT;
 
 %% Do
 for i = 1:N_ITER
@@ -27,7 +27,7 @@ for i = 1:N_ITER
     tx_random_signal = tx_pss;
 
     % AWGN
-    awgn_complex = AWGN_Complex(SNR_dB,Pavg,N_IFFT);
+    awgn_complex = AWGN_Complex(SNR_dB,Eavg,N_IFFT);
 
     % CFO
     epsilon = 2/3 * rand();

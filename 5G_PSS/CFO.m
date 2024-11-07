@@ -3,8 +3,8 @@ function cfo = CFO(epsilon,N_FFT,Length)
 
 %% Carrier Frequency Offset (CFO)
 cfo = zeros(1,Length);
-for i=0:Length-1
-    cfo(i+1) = exp(sqrt(-1)*2*pi*epsilon*i/N_FFT);
+for n=0:Length-1
+    cfo(n+1) = exp(2*1i*pi*epsilon*n/N_FFT);
 end
 
 % % Plot
