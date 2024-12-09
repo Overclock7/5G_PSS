@@ -63,18 +63,18 @@ est_epsilon = e_i + e_f;
 fprintf("Epsilon : %+1.5f || Estimation Epsilon : %+1.5f || Error : %1.5f\n",[epsilon est_epsilon abs(epsilon-est_epsilon)]);
 
 %% Plot
-figure;
-stem(m,corr_result);
-title("Correlation Result between Rx Signal and Reference PSS");
-xlabel("Index of Shift");
-xlim([m(1) m(end)+1 ]);
+% figure;
+% stem(m,corr_result);
+% title("Correlation Result between Rx Signal and Reference PSS");
+% xlabel("Index of Shift");
+% xlim([m(1) m(end)+1 ]);
 
 
 %% TEST
-figure;
-test_comp_rx_pss = rx_pss .* conj(CFO(est_epsilon,N_IFFT,N_IFFT+N_CP));
-test_fft_rx_pss = 1/sqrt(N_IFFT) * fftshift(fft(test_comp_rx_pss(19:end),N_IFFT));
-scatter(real(test_fft_rx_pss(65:191)),imag(test_fft_rx_pss(65:191)));
-xlim([-1.5 1.5]);
-ylim([-1.5 1.5]);
-pbaspect([1 1 1]);
+% figure;
+% test_comp_rx_pss = rx_pss .* conj(CFO(est_epsilon,N_IFFT,N_IFFT+N_CP));
+% test_fft_rx_pss = 1/sqrt(N_IFFT) * fftshift(fft(test_comp_rx_pss(19:end),N_IFFT));
+% scatter(real(test_fft_rx_pss(65:191)),imag(test_fft_rx_pss(65:191)));
+% xlim([-1.5 1.5]);
+% ylim([-1.5 1.5]);
+% pbaspect([1 1 1]);

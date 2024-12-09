@@ -18,7 +18,7 @@ cfo = CFO(epsilon,N_IFFT,N_IFFT+N_CP);
 awgn_complex = AWGN_Complex(SNR_dB,Eavg,N_IFFT+N_CP);
 
 %% Rx Signal
-rx_pss = [tx_pss(N_IFFT-(N_CP-1):N_IFFT) tx_pss] .* cfo + awgn_complex;
+rx_pss = [tx_pss(N_IFFT-(N_CP-1):N_IFFT) tx_pss] .* cfo;
 
 %% CFO Compensation (CFO Hypothesis)
 rx_pss_comp_1 = rx_pss .* conj(CFO(-4,N_IFFT,N_IFFT+N_CP));

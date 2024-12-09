@@ -1,22 +1,42 @@
+close;
+clear;
+clc;
 
+
+
+%% Read .mat file
+% epsilon = 0;
+% epsilon_i = 0;
+% rx = matfile("data1.mat");
+% rx_data = transpose(rx.xr);
+% rx_data = rx_data(499988:500281);  %% PSS Location = 499998:500271
+
+epsilon = 4/3;
+epsilon_i = 1;
+rx = matfile("data2.mat");
+rx_data = transpose(rx.xr);
+rx_data = rx_data(502008:502301); %% PSS Location = 502018:502291
+
+%% Parameter
 N_IFFT = 256;
 N_CP = 18;
 N_THRE = 127;
 Nid2 = -1;
-
-% Read .mat file
-rx = matfile("rx_data_4.mat");
-rx_data = rx.xr;
+Max_Freq_Offset = epsilon;
+Max_Epsilon_Integer = round(Max_Freq_Offset);
 
 % %% For Finding Threshold
+% corr = zeros(1,length(rx_data));
+% 
 % for i = 1+N_CP:length(rx_data)-(N_IFFT-1)
 % 
-%     selected_data = rx_data(i-N_CP:i+N_IFFT-1).*conj(CFO(1,N_IFFT,N_IFFT+N_CP));
+%     selected_data = rx_data(i-N_CP:i+N_IFFT-1);
 % 
 %     corr(i-N_CP) = abs(sum(selected_data(1+N_CP+1:1+N_CP+(N_IFFT/2 -1)) .* selected_data(1+N_CP+(N_IFFT-1):-1:1+N_CP+N_IFFT-(N_IFFT/2 - 1))));
 % 
 % end
 % 
+% figure;
 % stem(corr)
 
 
@@ -27,8 +47,8 @@ for i = 1+N_CP:length(rx_data)-(N_IFFT-1)
 
     corr = abs(sum(selected_data(1+N_CP+1:1+N_CP+(N_IFFT/2 -1)) .* selected_data(1+N_CP+(N_IFFT-1):-1:1+N_CP+N_IFFT-(N_IFFT/2 - 1))));
 
-    if corr > 10000000
-        break
+    if corr > 0.025
+        break;
     end
 end
 
@@ -48,18 +68,14 @@ part_comp_rx_pss = comp_rx_pss(N_CP+1:N_CP+N_IFFT);
 fft_rx_pss = 1/sqrt(N_IFFT) * fftshift(fft(part_comp_rx_pss,N_IFFT));
 
 %% Find Epsilon_i & Sector ID
-
-epsilon = 4/3;
-Max_Freq_Offset = 4/3;
-Max_Epsilon_Integer = round(Max_Freq_Offset);
 pss = PSS(0);
 pss_reference = pss(65:191);
 
 m = -86-Max_Epsilon_Integer:0+Max_Epsilon_Integer;
 corr_result = zeros(1,length(m));
 
-for i = 1:length(m)
-    corr_result(i) = abs(sum(fft_rx_pss(65:191).*circshift(pss_reference,m(i))));
+for k = 1:length(m)
+    corr_result(k) = abs(sum(fft_rx_pss(65:191).*circshift(pss_reference,m(k))));
 end
 [max_result, max_index] = max(corr_result);
 
@@ -88,6 +104,27 @@ title("Correlation Result between Rx Signal and Reference PSS");
 xlabel("Index of Shift");
 xlim([m(1) m(end)+1 ]);
 
-test_rx_pss = comp_rx_pss .* conj(CFO(est_epsilon_i,N_IFFT,N_IFFT+N_CP));
-test_fft_rx_pss = 1 / sqrt(N_IFFT) * fftshift(fft(test_rx_pss(1+N_CP:end),N_IFFT));
-scatter(real(test_fft_rx_pss(65:191)),imag(test_fft_rx_pss(65:191)));
+%% TEST
+
+% Compensation
+test_rx_pss = selected_data .* conj(CFO(est_epsilon,N_IFFT,N_IFFT+N_CP));
+test_part_rx_pss = test_rx_pss(N_CP+1:end);
+
+% FFT
+test_fft_rx_pss =  1 / sqrt(N_IFFT) .* fftshift(fft(test_part_rx_pss,N_IFFT));
+test_E = sum(abs(test_fft_rx_pss).^2);
+
+% Normalization
+test_normalized_fft_rx_pss =  sqrt(127) / sqrt(test_E) .* test_fft_rx_pss;
+test_Eavg = sum(abs(test_normalized_fft_rx_pss).^2)/N_IFFT;
+
+% Plot
+figure;
+scatter(real(test_normalized_fft_rx_pss(65:191)),imag(test_normalized_fft_rx_pss(65:191)));
+title("Constellation (Auto-corr, CFO="+num2str(epsilon)+")");
+xlabel("Real");
+ylabel("Imag");
+xlim([-1.5 1.5]);
+ylim([-1.5 1.5]);
+grid on;
+pbaspect([1 1 1]);

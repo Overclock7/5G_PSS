@@ -1,8 +1,8 @@
 
 function rmse = Crosscorrelation_Based_CFO_Estimation_RMSE(SNR_dB)
 
-% SNR_dB = -3;
-N_ITER = 1e4;
+% SNR_dB = -13;
+N_ITER = 1e5;
 N_IFFT = 256;
 N_CP = 18;
 Max_Freq_Offset = 1.33;
@@ -77,4 +77,4 @@ for i = 1:N_ITER
     est_epsilon(i) = est_epsilon_i + est_epsilon_f;
 end
 
-rmse = sqrt(sum((epsilon - est_epsilon).^2) / N_ITER);
+rmse = sqrt(sum((est_epsilon-epsilon).^2) / N_ITER); 

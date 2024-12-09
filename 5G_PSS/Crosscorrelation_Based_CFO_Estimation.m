@@ -10,6 +10,7 @@ tx_pss = sqrt(N_IFFT) * ifft(ifftshift(pss),N_IFFT);
 Eavg = sum(abs(tx_pss).^2)/N_IFFT;
 
 %% CFO
+Max_Freq_Offset = 1.5;
 epsilon = Max_Freq_Offset * rand() * (-1)^randi([0,1],1,1);
 cfo = CFO(epsilon,N_IFFT,N_IFFT+N_CP);
 
@@ -62,11 +63,11 @@ est_epsilon = est_epsilon_i + est_epsilon_f;
 fprintf("Epsilon : %+1.5f || Estimation Epsilon : %+1.5f || Error : %1.5f\n",[epsilon est_epsilon abs(epsilon-est_epsilon)]);
 
 %% TEST
-figure;
-test_comp_rx_pss = rx_pss .* conj(CFO(est_epsilon,N_IFFT,N_IFFT+N_CP));
-test_fft_rx_pss = 1 / sqrt(N_IFFT) * fftshift(fft(test_comp_rx_pss(19:end),N_IFFT));
-
-scatter(real(test_fft_rx_pss(65:191)),imag(test_fft_rx_pss(65:191)));
-xlim([-1.5 1.5]);
-ylim([-1.5 1.5]);
-grid on;
+% figure;
+% test_comp_rx_pss = rx_pss .* conj(CFO(est_epsilon,N_IFFT,N_IFFT+N_CP));
+% test_fft_rx_pss = 1 / sqrt(N_IFFT) * fftshift(fft(test_comp_rx_pss(19:end),N_IFFT));
+% 
+% scatter(real(test_fft_rx_pss(65:191)),imag(test_fft_rx_pss(65:191)));
+% xlim([-1.5 1.5]);
+% ylim([-1.5 1.5]);
+% grid on;

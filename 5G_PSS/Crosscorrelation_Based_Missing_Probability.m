@@ -3,7 +3,7 @@ function cross_corr_based_missing_probability = Crosscorrelation_Based_Missing_P
 
 %% Parameter
 % SNR_dB = -3;
-N_ITER = 1e4;
+N_ITER = 1e5;
 N_THRE = 127;
 N_IFFT = 256;
 
@@ -21,28 +21,31 @@ tx_pss = sqrt(N_IFFT) .* ifft(ifftshift(pss),N_IFFT);
 Eavg = sum(abs(tx_pss).^2)/N_IFFT;
 
 %% Do
-for i = 1:N_ITER
+for k = 1:N_THRE
 
-    % PSS Tx Signal
-    tx_random_signal = tx_pss;
+    for m = 1:N_ITER
 
-    % AWGN
-    awgn_complex = AWGN_Complex(SNR_dB,Eavg,N_IFFT);
+        % PSS Tx Signal
+        tx_random_signal = tx_pss;
 
-    % CFO
-    epsilon = 2/3 * rand();
-    cfo = CFO(epsilon,N_IFFT,N_IFFT);
+        % AWGN
+        awgn_complex = AWGN_Complex(SNR_dB,Eavg,N_IFFT);
 
-    % Make Rx Random Signal
-    rx_random_signal = tx_random_signal .* cfo + awgn_complex;
+        % CFO
+        epsilon = 2/3 * rand();
+        cfo = CFO(epsilon,N_IFFT,N_IFFT);
 
-    % Cross_correlation
-    corr_result(i) = abs(xcorr(rx_random_signal,tx_pss,0));
+        % Make Rx Random Signal
+        rx_random_signal = tx_random_signal .* cfo + awgn_complex;
 
-    % Missing Test
-    threshold = ceil(corr_result(i));
-    if threshold <= 127
-        cross_corr_based_missing_probability(threshold:N_THRE) = cross_corr_based_missing_probability(threshold:N_THRE) + 1;
+        % Cross_correlation
+        corr_result(k,m) = abs(xcorr(rx_random_signal,tx_pss,0));
+
+        % Missing Test
+        if corr_result(k,m) < k
+            cross_corr_based_missing_probability(k) = cross_corr_based_missing_probability(k) + 1;
+        end
+
     end
 
 end
@@ -50,5 +53,33 @@ end
 %% from Count to Probability
 cross_corr_based_missing_probability = cross_corr_based_missing_probability / N_ITER;
 
-%% Plot
+% %% Plot
 % semilogy(cross_corr_based_missing_probability);
+% grid on;
+
+% %% For Fast Do
+% for m = 1:N_ITER
+% 
+%     % PSS Tx Signal
+%     tx_random_signal = tx_pss;
+% 
+%     % AWGN
+%     awgn_complex = AWGN_Complex(SNR_dB,Eavg,N_IFFT);
+% 
+%     % CFO
+%     epsilon = 2/3 * rand();
+%     cfo = CFO(epsilon,N_IFFT,N_IFFT);
+% 
+%     % Make Rx Random Signal
+%     rx_random_signal = tx_random_signal .* cfo + awgn_complex;
+% 
+%     % Cross_correlation
+%     corr_result(m) = abs(xcorr(rx_random_signal,tx_pss,0));
+% 
+%     % Missing Test
+%     threshold = ceil(corr_result(m));
+%     if threshold <= 127
+%         cross_corr_based_missing_probability(threshold:N_THRE) = cross_corr_based_missing_probability(threshold:N_THRE) + 1;
+%     end
+% 
+% end

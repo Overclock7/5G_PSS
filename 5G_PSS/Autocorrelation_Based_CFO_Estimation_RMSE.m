@@ -2,7 +2,7 @@
 function rmse = Autocorrelation_Based_CFO_Estimation_RMSE(SNR_dB)
 
 % SNR_dB = -3;
-N_ITER = 1e4;
+N_ITER = 1e5;
 N_IFFT = 256;
 N_CP = 18;
 Max_Freq_Offset = 1.33;
@@ -79,6 +79,6 @@ for i = 1:N_ITER
 
 end
 
-rmse = sqrt(sum((epsilon - est_epsilon).^2) / N_ITER); 
+rmse = sqrt(sum((est_epsilon-epsilon).^2) / N_ITER); 
 
 
